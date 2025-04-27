@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sequência Musical da Quadrilha</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fdf6e3, #ffecd2);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #b33c00;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #e65c00;
+    }
+    .music-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    #nowPlaying {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #663300;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trilha Sonora da Quadrilha</h1>
+  <button onclick="togglePlayPause()" id="playPauseBtn">Pausar</button>
+  <button onclick="playAllFrom(0)">Iniciar Sequência</button>
+  <div id="nowPlaying">Tocando: Nenhuma música</div>
+  <div class="music-buttons" id="musicButtons"></div>
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <script>
+    const musicas = [
+      { nome: 'Entrada', arquivo: 'entrada.mp3' },
+      { nome: 'Rancheira', arquivo: 'rancheira.mp3' },
+      { nome: 'Me perdi no seu olhar', arquivo: 'me-perdi-no-seu-olhar.mp3' },
+      { nome: 'Explode coração', arquivo: 'explode-coracao.mp3' },
+      { nome: 'Procisão', arquivo: 'procisao.mp3' },
+      { nome: 'Noivos', arquivo: 'noivos.mp3' },
+      { nome: 'Chote', arquivo: 'chote.mp3' },
+      { nome: 'Quadrilhão', arquivo: 'quadrilhao.mp3' },
+      { nome: 'São João na Terra', arquivo: 'sao-joao-na-terra.mp3' },
+      { nome: 'Pagode Russo', arquivo: 'pagode-russo.mp3' },
+      { nome: 'Encerramento', arquivo: 'encerramento.mp3' }
+    ];
+
+    const audio = document.getElementById('audioPlayer');
+    const nowPlaying = document.getElementById('nowPlaying');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const buttonsDiv = document.getElementById('musicButtons');
+    let currentIndex = 0;
+    let isPaused = false;
+
+    // Função para tocar a partir de uma música específica
+    function playAllFrom(index) {
+      currentIndex = index;
+      isPaused = false;
+      audio.src = musicas[currentIndex].arquivo;
+      nowPlaying.innerText = 'Tocando: ' + musicas[currentIndex].nome;
+      audio.play();
+      playPauseBtn.innerText = 'Pausar';
+    }
+
+    // Quando a música termina, tocar a próxima automaticamente
+    audio.addEventListener('ended', () => {
+      currentIndex++;
+      if (currentIndex < musicas.length) {
+        audio.src = musicas[currentIndex].arquivo;
+        nowPlaying.innerText = 'Tocando: ' + musicas[currentIndex].nome;
+        audio.play();
+      } else {
+        nowPlaying.innerText = 'Sequência encerrada.';
+        playPauseBtn.innerText = 'Play';
+      }
+    });
+
+    // Botão de Pausar e Retomar
+    function togglePlayPause() {
+      if (audio.paused) {
+        audio.play();
+        isPaused = false;
+        playPauseBtn.innerText = 'Pausar';
+        nowPlaying.innerText = 'Tocando: ' + musicas[currentIndex].nome;
+      } else {
+        audio.pause();
+        isPaused = true;
+        playPauseBtn.innerText = 'Play';
+        nowPlaying.innerText = 'Pausado: ' + musicas[currentIndex].nome;
+      }
+    }
+
+    // Criação dos botões individuais com nomes
+    musicas.forEach((musica, index) => {
+      const btn = document.createElement('button');
+      btn.innerText = musica.nome;
+      btn.onclick = () => playAllFrom(index);
+      buttonsDiv.appendChild(btn);
+    });
+  </script>
+</body>
+</html>
