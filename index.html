@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sequência Musical da Quadrilha</title>
   <style>
     body {
@@ -75,7 +75,6 @@
     let currentIndex = 0;
     let isPaused = false;
 
-    // Função para tocar a partir de uma música específica
     function playAllFrom(index) {
       currentIndex = index;
       isPaused = false;
@@ -85,7 +84,6 @@
       playPauseBtn.innerText = 'Pausar';
     }
 
-    // Quando a música termina, tocar a próxima automaticamente
     audio.addEventListener('ended', () => {
       currentIndex++;
       if (currentIndex < musicas.length) {
@@ -98,7 +96,6 @@
       }
     });
 
-    // Botão de Pausar e Retomar
     function togglePlayPause() {
       if (audio.paused) {
         audio.play();
@@ -113,13 +110,80 @@
       }
     }
 
-    // Criação dos botões individuais com nomes
     musicas.forEach((musica, index) => {
       const btn = document.createElement('button');
       btn.innerText = musica.nome;
       btn.onclick = () => playAllFrom(index);
       buttonsDiv.appendChild(btn);
     });
+
+    // Criar manifest dinâmico
+    const manifest = {
+      name: "Sequência Musical da Quadrilha",
+      short_name: "Quadrilha",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#fdf6e3",
+      theme_color: "#ff6600",
+      icons: [
+        {
+          src: "icon-192.png",
+          sizes: "192x192",
+          type: "image/png"
+        },
+        {
+          src: "icon-512.png",
+          sizes: "512x512",
+          type: "image/png"
+        }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const manifestURL = URL.createObjectURL(blob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestURL;
+    document.head.appendChild(link);
+
+    // Registrar o Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swCode = `
+          const cacheName = 'quadrilha-musical-v1';
+          const assets = [
+            './',
+            './index.html',
+            './teatro.mp3',
+            './entrada.mp3',
+            './rancheira.mp3',
+            './me-perdi-no-seu-olhar.mp3',
+            './explode-coracao.mp3',
+            './procisao.mp3',
+            './noivos.mp3',
+            './chote.mp3',
+            './quadrilhao.mp3',
+            './sao-joao-na-terra.mp3',
+            './pagode-russo.mp3',
+            './encerramento.mp3',
+            './icon-192.png',
+            './icon-512.png'
+          ];
+          self.addEventListener('install', event => {
+            event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(assets)));
+          });
+          self.addEventListener('fetch', event => {
+            event.respondWith(
+              caches.match(event.request).then(response => response || fetch(event.request))
+            );
+          });
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swURL = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swURL)
+          .then(reg => console.log('Service Worker registrado!', reg))
+          .catch(err => console.error('Erro no Service Worker:', err));
+      });
+    }
   </script>
 </body>
 </html>
